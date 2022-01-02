@@ -1,0 +1,15 @@
+{
+	"Name": "Lazpack Test Repo",
+	"Packages": [
+		{
+			"Name": "Tau",
+			"VersionSer": "2021.1127.0",
+			"DownloadUrl": "https://github.com/taulazer/tau/releases/download/2021.1127.0/osu.Game.Rulesets.Tau.dll"
+		},
+		{
+			"Name": "sentakki",
+			"VersionSer": "2021.1127.0",
+			"DownloadUrl": "https://github.com/LumpBloom7/sentakki/releases/download/2021.1127.0/osu.Game.Rulesets.Sentakki.dll"
+		}
+	]
+}

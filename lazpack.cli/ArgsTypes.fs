@@ -10,6 +10,11 @@ open CommandLine
 type ListOptions() =
     class
     end
+    
+[<Verb("update", HelpText = "Updates local package cache from repos")>]
+type UpdateOptions() =
+    class
+    end
 
 [<Verb("repoadd", HelpText = "Adds a repo")>]
 type RepoAddOptions =

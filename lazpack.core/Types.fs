@@ -24,27 +24,56 @@ type Version =
               rev = uint16 re }
         | _ -> failwithf $"Version string `%s{str}` could not be parsed to a version"
 
+[<MessagePackObject>]
 type Package(nIn, vIn, duIn, iIn) =
-    member val Name: string = nIn
-    member val Version: Version = vIn
-    member val DownloadUrl: string = duIn
-    member val Installed: bool = iIn
+    new() = Package("", Version.Parse "0.0.0", "", false)
 
-type Repo(nIn, pIn) =
-    member val Name: string = nIn
-    member val Packages: Package [] = pIn
+    [<Key(0)>]
+    member val Name: string = nIn with get, set
+
+    [<IgnoreMember>]
+    member val Version: Version = vIn with get, set
+
+    [<Key(1)>]
+    member this.VersionSer
+        with get () = string this.Version
+        and set str = this.Version <- Version.Parse str
+
+    [<Key(2)>]
+    member val DownloadUrl: string = duIn with get, set
+
+    [<Key(3)>]
+    member val Installed: bool = iIn with get, set
+
+[<MessagePackObject>]
+type Repo(nIn, uIn, pIn) =
+    new() = Repo("", "", [||])
+
+    [<Key(0)>]
+    member val Name: string = nIn with get, set
+    
+    [<Key(1)>]
+    member val Url: string = uIn with get, set
+
+    [<Key(2)>]
+    member val Packages: Package [] = pIn with get, set
 
 [<MessagePackObject>]
 type Db(rIn) =
+    new() = Db([||])
+
     [<Key(0)>]
-    member val Repos: Repo [] = rIn
+    member val Repos: Repo [] = rIn with get, set
+
+    member this.AddRepo repo =
+        this.Repos <- Array.append this.Repos [| repo |]
 
     [<IgnoreMember>]
     member this.RepoPackagePairs =
         this.Repos
         |> Array.map (fun r -> r.Packages |> Array.map (fun p -> (p, r)))
         |> Array.concat
-        
+
     [<IgnoreMember>]
     member this.Packages =
         this.Repos

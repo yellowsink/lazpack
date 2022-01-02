@@ -11,6 +11,7 @@
         <Compile Include="Types.fs" />
         <Compile Include="Fetcher.fs" />
         <Compile Include="DbIo.fs" />
+        <Compile Include="Db.fs" />
     </ItemGroup>
 
     <ItemGroup>

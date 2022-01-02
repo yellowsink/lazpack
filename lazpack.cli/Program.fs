@@ -3,7 +3,6 @@ module lazpack.cli.Program
 open CommandLine
 open lazpack.cli
 open lazpack.core
-open lazpack.core.Types
 
 // exit codes:
 // 0 - success, clean exit
@@ -13,21 +12,23 @@ open lazpack.core.Types
 let argSuccess (rawParsed: obj) =
     match rawParsed with
     | :? ListOptions ->
-        printfn "Fetching db..."
-        //let db = DbIo.getDb() |> Async.RunSynchronously
-        let db = Db([|
-            Repo("Sink's cool repo 1", [|
-                Package("Tau", Version.Parse "2021.1127.0", "https://te.st", false)
-            |])
-            Repo("Another repo", [|
-                Package("Sentakki", Version.Parse "6.9.420", "https://te.st", true)
-            |]);
-        |])
-        let table = PackageTable.createTable db.RepoPackagePairs
+        let db = DbIo.getDb () |> Async.RunSynchronously
+
+        let table =
+            PackageTable.createTable db.RepoPackagePairs
+
         printfn $"%s{table}"
         0
     | :? RepoAddOptions as repoAddParsed ->
-        printfn $"Chose to add repo with url %s{repoAddParsed.url}"
+        match Fetcher.fetchRepo repoAddParsed.url
+              |> Async.Catch |> Async.RunSynchronously with
+        | Choice1Of2 repo ->
+            Db.addRepo repo |> Async.RunSynchronously
+        | Choice2Of2 err ->
+            printfn $"[REPO] Failed to fetch repo with error: %s{err.Message}"
+        0
+    | :? UpdateOptions ->
+        Db.updateRepos() |> Async.RunSynchronously
         0
     | _ ->
         printfn "[ARGS] incomplete matches along `match` expr - report this ASAP cause this is very wrong"
@@ -37,7 +38,7 @@ let argSuccess (rawParsed: obj) =
 [<EntryPoint>]
 let main args =
     let parseResult =
-        Parser.Default.ParseArguments<ListOptions, RepoAddOptions> args
+        Parser.Default.ParseArguments<ListOptions, UpdateOptions, RepoAddOptions> args
 
     match parseResult with
     | :? Parsed<obj> as objParsed -> argSuccess objParsed.Value

@@ -6,19 +6,28 @@ open System.Text.Json
 open lazpack.core.Types
 open lazpack.core.Utils.Operators
 
-let fetch (url: string) =
+let private fetch (url: string) =
     async {
         let client = new HttpClient()
         let! resp = client.GetAsync url |> Async.AwaitTask
 
-        return
-            (if resp.StatusCode = HttpStatusCode.OK then
-                 resp.Content.ToString()
-             else
-                 "")
+        if resp.StatusCode = HttpStatusCode.OK then
+            return!
+                resp.Content.ReadAsStringAsync()
+                |> Async.AwaitTask
+        else
+            return ""
     }
 
 // type annotations go brr
-let parse: string -> Repo = JsonSerializer.Deserialize
+let private parse: string -> Repo = JsonSerializer.Deserialize
 
-let fetchAndParse = fetch |>> parse
+let private fetchAndParse = fetch |>> parse
+
+let fetchRepo url =
+    async {
+        let! db = fetchAndParse url
+        // ew mutability
+        db.Url <- url
+        return db
+    }

@@ -31,7 +31,9 @@ let getDb () =
             let valueTask =
                 MessagePackSerializer.DeserializeAsync<Db> stream
 
-            return! valueTask.AsTask() |> Async.AwaitTask
+            let! db = valueTask.AsTask() |> Async.AwaitTask
+            do! stream.DisposeAsync().AsTask() |> Async.AwaitTask
+            return db
         else
             return Db([||])
     }
@@ -41,7 +43,9 @@ let saveDb db =
     async {
         let stream = File.OpenWrite dbPath
 
-        return!
+        do!
             MessagePackSerializer.SerializeAsync(stream, db)
             |> Async.AwaitTask
+        
+        do! stream.DisposeAsync().AsTask() |> Async.AwaitTask
     }
