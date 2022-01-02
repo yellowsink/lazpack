@@ -18,6 +18,7 @@ let argSuccess (rawParsed: obj) =
         0
     | _ ->
         printfn "[ARGS] incomplete matches along `match` expr - report this ASAP cause this is very wrong"
+        printfn $"[DEBUG] %s{rawParsed.GetType().FullName}"
         1
 
 [<EntryPoint>]
@@ -26,7 +27,7 @@ let main args =
         Parser.Default.ParseArguments<ListOptions, RepoAddOptions> args
 
     match parseResult with
-    | :? Parsed<obj> as objParsed -> argSuccess objParsed
+    | :? Parsed<obj> as objParsed -> argSuccess objParsed.Value
     | :? NotParsed<obj> -> 2
     | _ ->
         printfn "[ARGS] Either F# `match` exprs or CommandLineParser.Fsharp has broken, needs urgent investigation"
