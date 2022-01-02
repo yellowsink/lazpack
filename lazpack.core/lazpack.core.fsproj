@@ -6,8 +6,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Utils\Operators.fs" />
-        <Compile Include="Fetcher.fs" />
+        <Compile Include="Utils\Operators.fs"/>
+        <Compile Include="Fetcher.fs"/>
     </ItemGroup>
 
 </Project>
