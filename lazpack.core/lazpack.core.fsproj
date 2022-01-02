@@ -8,6 +8,12 @@
     <ItemGroup>
         <Compile Include="Utils\Operators.fs"/>
         <Compile Include="Fetcher.fs"/>
+        <Compile Include="Types.fs"/>
+        <Compile Include="DbIo.fs"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MessagePack" Version="2.3.85"/>
     </ItemGroup>
 
 </Project>

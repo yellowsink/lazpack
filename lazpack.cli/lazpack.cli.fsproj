@@ -14,4 +14,8 @@
         <PackageReference Include="CommandLineParser.FSharp" Version="2.8.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\lazpack.core\lazpack.core.fsproj"/>
+    </ItemGroup>
+
 </Project>
