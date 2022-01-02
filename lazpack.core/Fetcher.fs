@@ -3,11 +3,8 @@
 open System.Net
 open System.Net.Http
 open System.Text.Json
+open lazpack.core.Types
 open lazpack.core.Utils.Operators
-
-type ruleset = string
-
-type repo = { url: string; ruleSets: ruleset list }
 
 let fetch (url: string) =
     async {
@@ -22,6 +19,6 @@ let fetch (url: string) =
     }
 
 // type annotations go brr
-let parse: string -> repo = JsonSerializer.Deserialize
+let parse: string -> Repo = JsonSerializer.Deserialize
 
 let fetchAndParse = fetch |>> parse

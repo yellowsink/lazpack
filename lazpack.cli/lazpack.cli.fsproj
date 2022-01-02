@@ -6,16 +6,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="ArgsTypes.fs"/>
-        <Compile Include="Program.fs"/>
+        <Compile Include="ArgsTypes.fs" />
+        <Compile Include="PackageTable.fs" />
+        <Compile Include="Program.fs" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CommandLineParser.FSharp" Version="2.8.0"/>
+        <PackageReference Include="CommandLineParser.FSharp" Version="2.8.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\lazpack.core\lazpack.core.fsproj"/>
+        <ProjectReference Include="..\lazpack.core\lazpack.core.fsproj" />
     </ItemGroup>
 
 </Project>

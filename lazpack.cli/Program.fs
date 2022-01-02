@@ -2,6 +2,8 @@ module lazpack.cli.Program
 
 open CommandLine
 open lazpack.cli
+open lazpack.core
+open lazpack.core.Types
 
 // exit codes:
 // 0 - success, clean exit
@@ -11,7 +13,18 @@ open lazpack.cli
 let argSuccess (rawParsed: obj) =
     match rawParsed with
     | :? ListOptions ->
-        printfn "Chose to list packages"
+        printfn "Fetching db..."
+        //let db = DbIo.getDb() |> Async.RunSynchronously
+        let db = Db([|
+            Repo("Sink's cool repo 1", [|
+                Package("Tau", Version.Parse "2021.1127.0", "https://te.st", false)
+            |])
+            Repo("Another repo", [|
+                Package("Sentakki", Version.Parse "6.9.420", "https://te.st", true)
+            |]);
+        |])
+        let table = PackageTable.createTable db.RepoPackagePairs
+        printfn $"%s{table}"
         0
     | :? RepoAddOptions as repoAddParsed ->
         printfn $"Chose to add repo with url %s{repoAddParsed.url}"

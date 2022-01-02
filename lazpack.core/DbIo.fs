@@ -33,7 +33,7 @@ let getDb () =
 
             return! valueTask.AsTask() |> Async.AwaitTask
         else
-            return Db([||], [||])
+            return Db([||])
     }
 
 /// saves a DB to disk
