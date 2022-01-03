@@ -27,7 +27,8 @@ let passed =
     | MissingFiles _ -> false
 
 let validateInstalledFiles (db: Db) =
-    let files = Directory.GetFiles lazerRulesetsFolder
+    let files = DirectoryInfo(lazerRulesetsFolder).GetFiles()
+                |> Array.map (fun f -> f.Name)
 
     let missing =
         db.Packages
