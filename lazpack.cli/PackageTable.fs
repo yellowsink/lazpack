@@ -7,19 +7,22 @@ open lazpack.core.Utils.Escapes
 /// formats a list of packages as a nice table
 let createTable (packages: (Package * Repo) []) =
     let maxPkgNameWidth =
-        (packages
-         |> Array.fold (fun working (p, _) -> max working p.Name.Length) 0)
-        + 1
+        1
+        + (packages
+           |> Array.map (fun (p, _) -> p.Name.Length)
+           |> Array.max)
 
     let maxVerWidth =
-        (packages
-         |> Array.fold (fun working (p, _) -> max working (string p.Version).Length) 0)
-        + 1
+        1
+        + (packages
+           |> Array.map (fun (p, _) -> (string p.Version).Length)
+           |> Array.max)
 
     let maxRepoNameWidth =
-        (packages
-         |> Array.fold (fun working (_, r) -> max working r.Name.Length) 0)
-        + 1
+        1
+        + (packages
+           |> Array.map (fun (_, r) -> r.Name.Length)
+           |> Array.max)
 
     let headerName = "Name".PadRight maxPkgNameWidth
     let headerVer = "Version".PadRight maxVerWidth

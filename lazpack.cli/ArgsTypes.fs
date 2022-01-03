@@ -20,3 +20,8 @@ type UpdateOptions() =
 type RepoAddOptions =
     { [<Option('u', "url", Required = true)>]
       url: string }
+
+[<Verb("repolist", HelpText = "Lists repos")>]
+type RepoListOptions() =
+    class
+    end

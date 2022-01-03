@@ -8,6 +8,7 @@ open lazpack.core
 // 0 - success, clean exit
 // 1 - match expr fell back to discard - we haven't matched every expr
 // 2 - args failed to parse, errors have been logged to console by the parser !! no manual logging required here !!
+// 3 - repo fetch failed
 
 let argSuccess (rawParsed: obj) =
     match rawParsed with
@@ -19,16 +20,24 @@ let argSuccess (rawParsed: obj) =
 
         printfn $"%s{table}"
         0
+
     | :? RepoAddOptions as repoAddParsed ->
         match Fetcher.fetchRepo repoAddParsed.url
-              |> Async.Catch |> Async.RunSynchronously with
-        | Choice1Of2 repo ->
-            Db.addRepo repo |> Async.RunSynchronously
-        | Choice2Of2 err ->
-            printfn $"[REPO] Failed to fetch repo with error: %s{err.Message}"
-        0
+              |> Async.Catch
+              |> Async.RunSynchronously with
+        | Choice1Of2 repo -> Db.addRepo repo |> Async.RunSynchronously
+        | Choice2Of2 err -> printfn $"[REPO] Failed to fetch repo with error: %s{err.Message}"
+
+        3
+
     | :? UpdateOptions ->
-        Db.updateRepos() |> Async.RunSynchronously
+        Db.updateRepos () |> Async.RunSynchronously
+        0
+
+    | :? RepoListOptions ->
+        let db = DbIo.getDb () |> Async.RunSynchronously
+        let table = RepoTable.createTable db.Repos
+        printfn $"%s{table}"
         0
     | _ ->
         printfn "[ARGS] incomplete matches along `match` expr - report this ASAP cause this is very wrong"
@@ -38,7 +47,7 @@ let argSuccess (rawParsed: obj) =
 [<EntryPoint>]
 let main args =
     let parseResult =
-        Parser.Default.ParseArguments<ListOptions, UpdateOptions, RepoAddOptions> args
+        Parser.Default.ParseArguments<ListOptions, UpdateOptions, RepoAddOptions, RepoListOptions> args
 
     match parseResult with
     | :? Parsed<obj> as objParsed -> argSuccess objParsed.Value
