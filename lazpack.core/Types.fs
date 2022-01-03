@@ -1,11 +1,13 @@
 module lazpack.core.Types
 
+open System
 open MessagePack
 open lazpack.core.Utils
 
 // these types are mostly classes instead of records so that MessagePack-CSharp doesnt blow up
 
 // if 3 unsigned 16bit ints isn't enough to hold your version numbers you are mentally deranged
+[<CustomComparison; StructuralEquality>]
 type Version =
     { major: uint16
       minor: uint16
@@ -24,6 +26,22 @@ type Version =
               minor = uint16 mi
               rev = uint16 re }
         | _ -> failwithf $"Version string `%s{str}` could not be parsed to a version"
+
+    interface IComparable with
+        member this.CompareTo other =
+            match other with
+            | :? Version as ver -> (this :> IComparable<_>).CompareTo ver
+            | _ -> -1
+
+    interface IComparable<Version> with
+        member this.CompareTo other =
+            if other.major = this.major then
+                if other.minor = this.minor then
+                    other.rev.CompareTo this.rev
+                else
+                    other.minor.CompareTo this.minor
+            else
+                other.major.CompareTo this.minor
 
 [<MessagePackObject>]
 type Package(nIn, vIn, duIn, iIn) =
@@ -45,9 +63,10 @@ type Package(nIn, vIn, duIn, iIn) =
 
     [<Key(3)>]
     member val Installed: bool = iIn with get, set
-    
+
     [<IgnoreMember>]
-    member this.InstalledFileName = $"lazpackRuleset-%s{Misc.sanitise this.Name}.dll"
+    member this.InstalledFileName =
+        $"lazpackRuleset-%s{Misc.sanitise this.Name}.dll"
 
 [<MessagePackObject>]
 type Repo(nIn, uIn, pIn) =
@@ -55,7 +74,7 @@ type Repo(nIn, uIn, pIn) =
 
     [<Key(0)>]
     member val Name: string = nIn with get, set
-    
+
     [<Key(1)>]
     member val Url: string = uIn with get, set
 
