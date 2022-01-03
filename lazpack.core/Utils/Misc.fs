@@ -32,6 +32,6 @@ let sanitise (raw: string) =
     |> String.map
         (fun c ->
             if badCharacters |> List.contains c then
-                c
+                replacement
             else
-                replacement)
+                c)
