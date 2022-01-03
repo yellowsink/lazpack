@@ -3,12 +3,37 @@ module lazpack.cli.Program
 open CommandLine
 open lazpack.cli
 open lazpack.core
+open lazpack.core.FileManager
+open lazpack.core.Utils
 
 // exit codes:
 // 0 - success, clean exit
 // 1 - match expr fell back to discard - we haven't matched every expr
 // 2 - args failed to parse, errors have been logged to console by the parser !! no manual logging required here !!
 // 3 - repo fetch failed
+// 4 - validation failed
+// 5 - package with name not found
+// 6 - package fetch failed
+
+let handleValidation () =
+    let db = DbIo.getDb () |> Async.RunSynchronously
+    let validationResult = validateInstalledFiles db
+
+    match validationResult with
+    | AsExpected -> true
+    | SomeUntracked untrackedFiles ->
+        printfn
+            $"%s{Escapes.magenta}Found %i{untrackedFiles.Length} untracked files. Be careful mixing lazpack with manual ruleset management!"
+
+        true
+    | MissingFiles files ->
+        printfn
+            $"%s{Escapes.red}!! MISSING FILES !! The following files are managed by lazpack, yet are missing - please run `lazpack remanage` to fix:"
+
+        files
+        |> List.iter (fun p -> printfn $" - %s{p.Name} (%s{p.InstalledFileName})")
+
+        false
 
 let argSuccess (rawParsed: obj) =
     match rawParsed with
@@ -39,6 +64,32 @@ let argSuccess (rawParsed: obj) =
         let table = RepoTable.createTable db.Repos
         printfn $"%s{table}"
         0
+
+    | :? InstallOptions as installParsed ->
+        if handleValidation () then
+            let pkgRes =
+                Db.packageByName installParsed.package
+                |> Async.RunSynchronously
+
+            match pkgRes with
+            | None ->
+                printfn $"[PKG] Could not find package with name `%s{installParsed.package}`"
+                5
+            | Some pkg ->
+                let instRes =
+                    PackageManager.install pkg
+                    |> Async.RunSynchronously
+
+                if instRes then
+                    0
+                else
+                    printfn
+                        "[PKG] Failed to fetch package, please try again later, update repos, or check with the repo maintainer"
+
+                    6
+        else
+            4
+
     | _ ->
         printfn "[ARGS] incomplete matches along `match` expr - report this ASAP cause this is very wrong"
         printfn $"[DEBUG] %s{rawParsed.GetType().FullName}"
@@ -47,7 +98,7 @@ let argSuccess (rawParsed: obj) =
 [<EntryPoint>]
 let main args =
     let parseResult =
-        Parser.Default.ParseArguments<ListOptions, UpdateOptions, RepoAddOptions, RepoListOptions> args
+        Parser.Default.ParseArguments<ListOptions, UpdateOptions, RepoAddOptions, RepoListOptions, InstallOptions> args
 
     match parseResult with
     | :? Parsed<obj> as objParsed -> argSuccess objParsed.Value

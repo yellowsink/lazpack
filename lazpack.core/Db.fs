@@ -1,10 +1,12 @@
 module lazpack.core.Db
 
+open lazpack.core.Types
+
 let addRepo repo =
     async {
         let! db = DbIo.getDb ()
-        // ew mutability and OOP *at the same time*
-        db.AddRepo repo
+        // ew mutability
+        db.Repos <- db.Repos |> Array.append [|repo|]
         do! DbIo.saveDb db
     }
 
@@ -18,3 +20,30 @@ let updateRepos () = async {
     
     do! DbIo.saveDb db
 }
+
+let setPkgInstalled fName =
+    async {
+        let! db = DbIo.getDb ()
+        db.Repos <-
+            db.Repos
+            |> Array.map (fun r ->
+                // yuck, but its the easiest way to do this with classes
+                
+                Repo(r.Name, r.Url, (r.Packages
+                                     |> Array.map (fun p ->
+                                         if p.InstalledFileName = fName then
+                                             Package(p.Name, p.Version, p.DownloadUrl, true)
+                                         else
+                                             p))))
+    
+        do! DbIo.saveDb db
+    }
+    
+let packageByName name =
+    async {
+        let! db = DbIo.getDb ()
+        
+        return db.Packages
+              |> Array.sortBy (fun p -> p.Version)
+              |> Array.tryFind (fun p -> p.Name = name)
+    }

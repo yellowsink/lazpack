@@ -8,10 +8,13 @@
     <ItemGroup>
         <Compile Include="Utils\Operators.fs" />
         <Compile Include="Utils\Escapes.fs" />
+        <Compile Include="Utils\Misc.fs" />
         <Compile Include="Types.fs" />
         <Compile Include="Fetcher.fs" />
         <Compile Include="DbIo.fs" />
         <Compile Include="Db.fs" />
+        <Compile Include="FileManager.fs" />
+        <Compile Include="PackageManager.fs" />
     </ItemGroup>
 
     <ItemGroup>

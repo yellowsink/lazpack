@@ -1,6 +1,7 @@
 module lazpack.core.Types
 
 open MessagePack
+open lazpack.core.Utils
 
 // these types are mostly classes instead of records so that MessagePack-CSharp doesnt blow up
 
@@ -44,6 +45,9 @@ type Package(nIn, vIn, duIn, iIn) =
 
     [<Key(3)>]
     member val Installed: bool = iIn with get, set
+    
+    [<IgnoreMember>]
+    member this.InstalledFileName = $"lazpackRuleset-%s{Misc.sanitise this.Name}.dll"
 
 [<MessagePackObject>]
 type Repo(nIn, uIn, pIn) =
@@ -64,9 +68,6 @@ type Db(rIn) =
 
     [<Key(0)>]
     member val Repos: Repo [] = rIn with get, set
-
-    member this.AddRepo repo =
-        this.Repos <- Array.append this.Repos [| repo |]
 
     [<IgnoreMember>]
     member this.RepoPackagePairs =

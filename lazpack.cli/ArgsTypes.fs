@@ -25,3 +25,8 @@ type RepoAddOptions =
 type RepoListOptions() =
     class
     end
+    
+[<Verb("install", HelpText = "Installs a package")>]
+type InstallOptions =
+    { [<Option('p', "package", Required = true)>]
+      package: string }

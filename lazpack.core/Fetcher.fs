@@ -31,3 +31,14 @@ let fetchRepo url =
         db.Url <- url
         return db
     }
+
+let fetchPackage (pkg: Package) =
+    async {
+        let client = new HttpClient()
+        let! resp = client.GetAsync pkg.DownloadUrl |> Async.AwaitTask
+        
+        if resp.IsSuccessStatusCode then
+            return ValueSome(resp.Content)
+        else
+            return ValueNone
+    }
