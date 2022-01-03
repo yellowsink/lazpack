@@ -1,6 +1,7 @@
 namespace lazpack.cli
 
 open CommandLine
+open CommandLine.Text
 
 [<Verb("list", HelpText = "Lists all packages available")>]
 // this is kinda hacky but its the easiest way to make an empty type in F#
@@ -10,7 +11,7 @@ open CommandLine
 type ListOptions() =
     class
     end
-    
+
 [<Verb("update", HelpText = "Updates local package cache from repos")>]
 type UpdateOptions() =
     class
@@ -25,8 +26,13 @@ type RepoAddOptions =
 type RepoListOptions() =
     class
     end
-    
+
 [<Verb("install", HelpText = "Installs a package")>]
 type InstallOptions =
     { [<Option('p', "package", Required = true)>]
       package: string }
+
+[<Verb("remanage", HelpText = "Fixes any management/verification issues. Optionally nukes unmanaged files.")>]
+type RemanageOptions =
+    { [<Option('n', "nuke")>]
+      nuke: bool }

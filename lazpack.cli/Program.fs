@@ -3,7 +3,6 @@ module lazpack.cli.Program
 open CommandLine
 open lazpack.cli
 open lazpack.core
-open lazpack.core.FileManager
 open lazpack.core.Utils
 
 // exit codes:
@@ -14,19 +13,20 @@ open lazpack.core.Utils
 // 4 - validation failed
 // 5 - package with name not found
 // 6 - package fetch failed
+// 7 - remanage failed
 
 let handleValidation () =
     let db = DbIo.getDb () |> Async.RunSynchronously
-    let validationResult = validateInstalledFiles db
+    let validationResult = FileManager.validateInstalledFiles db
 
     match validationResult with
-    | AsExpected -> true
-    | SomeUntracked untrackedFiles ->
+    | FileManager.AsExpected -> true
+    | FileManager.SomeUntracked untrackedFiles ->
         printfn
             $"%s{Escapes.magenta}Found %i{untrackedFiles.Length} untracked files. Be careful mixing lazpack with manual ruleset management!"
 
         true
-    | MissingFiles files ->
+    | FileManager.MissingFiles files ->
         printfn
             $"%s{Escapes.red}!! MISSING FILES !! The following files are managed by lazpack, yet are missing - please run `lazpack remanage` to fix:"
 
@@ -90,6 +90,21 @@ let argSuccess (rawParsed: obj) =
         else
             4
 
+    | :? RemanageOptions as remanageParsed ->
+        let res =
+            PackageManager.remanage remanageParsed.nuke
+            |> Async.RunSynchronously
+
+        if res then
+            0
+        else
+            if remanageParsed.nuke then
+                printfn "[FILE] Remanage failed. Please backup & try again with --nuke."
+            else
+                printfn "[FILE] Remanage failed. Please send your DB in an issue report."
+
+            7
+
     | _ ->
         printfn "[ARGS] incomplete matches along `match` expr - report this ASAP cause this is very wrong"
         printfn $"[DEBUG] %s{rawParsed.GetType().FullName}"
@@ -98,7 +113,8 @@ let argSuccess (rawParsed: obj) =
 [<EntryPoint>]
 let main args =
     let parseResult =
-        Parser.Default.ParseArguments<ListOptions, UpdateOptions, RepoAddOptions, RepoListOptions, InstallOptions> args
+        Parser.Default.ParseArguments<ListOptions, UpdateOptions, RepoAddOptions, RepoListOptions, InstallOptions, RemanageOptions>
+            args
 
     match parseResult with
     | :? Parsed<obj> as objParsed -> argSuccess objParsed.Value
