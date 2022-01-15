@@ -90,6 +90,21 @@ let argSuccess (rawParsed: obj) =
         else
             4
 
+    | :? RemoveOptions as removeParsed ->
+        let pkgRes =
+            Db.packageByName removeParsed.package
+            |> Async.RunSynchronously
+
+        match pkgRes with
+        | None ->
+            printfn $"[PKG] Could not find package with name `%s{removeParsed.package}`"
+            5
+        | Some pkg ->
+            PackageManager.remove pkg
+            |> Async.RunSynchronously
+
+            0
+
     | :? RemanageOptions as remanageParsed ->
         let res =
             PackageManager.remanage remanageParsed.nuke
@@ -113,7 +128,7 @@ let argSuccess (rawParsed: obj) =
 [<EntryPoint>]
 let main args =
     let parseResult =
-        Parser.Default.ParseArguments<ListOptions, UpdateOptions, RepoAddOptions, RepoListOptions, InstallOptions, RemanageOptions>
+        Parser.Default.ParseArguments<ListOptions, UpdateOptions, RepoAddOptions, RepoListOptions, InstallOptions, RemoveOptions, RemanageOptions>
             args
 
     match parseResult with

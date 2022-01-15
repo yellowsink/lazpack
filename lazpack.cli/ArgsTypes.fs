@@ -32,6 +32,11 @@ type InstallOptions =
     { [<Option('p', "package", Required = true)>]
       package: string }
 
+[<Verb("remove", HelpText = "Removes a package")>]
+type RemoveOptions =
+    { [<Option('p', "package", Required = true)>]
+      package: string }
+
 [<Verb("remanage", HelpText = "Fixes any management/verification issues. Optionally nukes unmanaged files.")>]
 type RemanageOptions =
     { [<Option('n', "nuke")>]

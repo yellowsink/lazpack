@@ -27,8 +27,9 @@ let passed =
     | MissingFiles _ -> false
 
 let validateInstalledFiles (db: Db) =
-    let files = DirectoryInfo(lazerRulesetsFolder).GetFiles()
-                |> Array.map (fun f -> f.Name)
+    let files =
+        DirectoryInfo(lazerRulesetsFolder).GetFiles()
+        |> Array.map (fun f -> f.Name)
 
     let missing =
         db.Packages
@@ -70,3 +71,10 @@ let installPackage pkg =
             return true
         | ValueNone -> return false
     }
+
+let removePackage (pkg: Package) =
+    let fullFileName =
+        Path.Combine(lazerRulesetsFolder, pkg.InstalledFileName)
+    
+    if (File.Exists fullFileName) then
+        File.Delete fullFileName

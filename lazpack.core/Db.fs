@@ -21,7 +21,7 @@ let updateRepos () = async {
     do! DbIo.saveDb db
 }
 
-let setPkgInstalled fName =
+let setPkgInstalled fName inst =
     async {
         let! db = DbIo.getDb ()
         db.Repos <-
@@ -32,7 +32,7 @@ let setPkgInstalled fName =
                 Repo(r.Name, r.Url, (r.Packages
                                      |> Array.map (fun p ->
                                          if p.InstalledFileName = fName then
-                                             Package(p.Name, p.Version, p.DownloadUrl, true)
+                                             Package(p.Name, p.Version, p.DownloadUrl, inst)
                                          else
                                              p))))
     

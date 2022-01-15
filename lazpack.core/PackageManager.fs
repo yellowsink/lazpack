@@ -7,9 +7,15 @@ let install pkg =
         let! success = FileManager.installPackage pkg
 
         if success then
-            do! Db.setPkgInstalled pkg.InstalledFileName
+            do! Db.setPkgInstalled pkg.InstalledFileName true
 
         return success
+    }
+
+let remove pkg =
+    async {
+        FileManager.removePackage pkg
+        do! Db.setPkgInstalled pkg.InstalledFileName false
     }
 
 let remanage nuke =
