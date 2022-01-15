@@ -66,7 +66,7 @@ type Package(nIn, vIn, duIn, iIn) =
 
     [<IgnoreMember>]
     member this.InstalledFileName =
-        $"lazpackRuleset-%s{Misc.sanitise this.Name}.dll"
+        $"osu.Game.Rulesets.LAZPACK-%s{Misc.sanitise this.Name}.dll"
 
 [<MessagePackObject>]
 type Repo(nIn, uIn, pIn) =

@@ -23,7 +23,7 @@ let remanage nuke =
                     .GetFiles()
                 |> Array.iter
                     (fun f ->
-                        if f.Name.StartsWith "lazpackRuleset-" then
+                        if f.Name.StartsWith "osu.Game.Rulesets.LAZPACK-" then
                             f.Delete())
         
         removeFiles()
